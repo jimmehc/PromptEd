@@ -41,19 +41,24 @@ function Get-PromptTask
     $script:promptTasks
 }
 
-$script:currentPrompt = $function:prompt
+$script:oldPrompt = $function:prompt
+$script:currentPrompt = $script:oldPrompt
 function Write-Prompt
 {
     $currentPrompt.Invoke()
 }
 
-function prompt
+function global:prompt
 {
     Invoke-PromptTasks
     Write-Prompt
     return " "
 }
- 
+
+$MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {            
+    $function:prompt = $script:oldPrompt            
+}
+   
 $script:prompts = @{}
 
 function Set-Prompt
