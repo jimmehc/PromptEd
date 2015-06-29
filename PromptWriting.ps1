@@ -158,6 +158,32 @@ function Remove-PromptElement
     $script:promptElements = $newPromptElements
 }
 
+function Set-PromptElement
+{
+    <#
+    .SYNOPSIS
+    .DESCRIPTION
+    .EXAMPLE
+    .LINK
+        https://github.com/jimmehc/PromptEd
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Position=0, Mandatory=$true)]
+        [ScriptBlock]$PromptElement,
+        [Parameter(Position=1, Mandatory=$true)]
+        [string]$Index
+    )
+
+    $Index = script:GetRealIndex $Index $script:promptElements.Length
+
+    if(!(script:ValidateIndex $Index $script:promptElements.Length))
+    {
+        return
+    }
+
+    $script:promptElements[$Index] = $PromptElement
+}
 function Set-Prompt
 {
     <#
@@ -191,13 +217,7 @@ function Set-Prompt
     }
 }
 
-$script:promptColors = 
-    @{
-        Path = $Host.UI.RawUI.ForegroundColor;
-        Preamble = [ConsoleColor]::Magenta;
-        Time = [ConsoleColor]::Blue;
-        Brackets = [ConsoleColor]::Green;
-     }
+$script:promptColors = @{}
 
 function Set-PromptColor
 {
@@ -224,6 +244,35 @@ function Set-PromptColor
         [Parameter(Position=1, Mandatory=$true)]
         [ConsoleColor]$Color
     )
+
+    $script:promptColors[$Name] = $Color
+}
+
+function Add-PromptColor
+{
+    <#
+    .SYNOPSIS
+        Adds a color for use in prompts.
+    .DESCRIPTION
+        Adds a color, associated with a specific name, which is used in available prompts.
+    .PARAMETER Name
+        The name associated with the color being added.
+    .LINK
+        https://github.com/jimmehc/PromptEd
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Position=0, Mandatory=$true)]
+        [string]$Name,
+        [Parameter(Position=1, Mandatory=$true)]
+        [ConsoleColor]$Color
+    )
+
+    if($script:promptColors.ContainsKey($Name))
+    {
+        Write-Error "The prompt color with name, $Name, already exists.  Use Set-PromptColor to set it to a new value."
+        return
+    }
 
     $script:promptColors[$Name] = $Color
 }

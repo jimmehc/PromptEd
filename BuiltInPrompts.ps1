@@ -1,3 +1,10 @@
+# Define some colors for use in prompts
+Add-PromptColor Path $Host.UI.RawUI.ForegroundColor
+Add-PromptColor Preamble Magenta
+Add-PromptColor Time Blue
+Add-PromptColor Brackets Green
+
+# Helper functions common to various prompt elements
 function script:Get-CurrentLocation
 {
     "$($executionContext.SessionState.Path.CurrentLocation)"
@@ -8,6 +15,7 @@ function script:Get-DefaultPathOutput
     "$(Get-CurrentLocation)".Replace("Microsoft.PowerShell.Core\FileSystem::", "").Replace($env:USERPROFILE,"~")
 }
 
+# Prompt element definitions
 function pe_UNAtCN { 
     Write-Host -ForeGroundColor $script:promptColors["Preamble"] "$($env:USERNAME)@$($env:COMPUTERNAME)".ToLower() -NoNewLine; 
 }
@@ -60,6 +68,7 @@ function pe_PoshGitStatus{
 
 function pe_NoSeparator { <# No Separator #> }
 
+# Built-in prompt definitions
 Add-BuiltInPrompt JustPath @(
     $function:pe_FullPath,
     $function:pe_NoSeparator,
