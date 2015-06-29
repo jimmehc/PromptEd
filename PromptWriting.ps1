@@ -4,11 +4,26 @@ param(
 )
 
 $script:oldPrompt = $function:prompt
-$script:currentPrompt = $script:oldPrompt
+$script:promptElements = @()
+$script:promptElements += $script:oldPrompt
 
 function script:Write-Prompt
 {
-    $script:currentPrompt.Invoke()
+    for($i = 0; $i -lt $script:promptElements.Count; $i++)
+    {
+        $script:promptElements[$i].Invoke()
+        if($i -ne $script:promptElements.Count - 1)
+        {
+            if($script:promptElements[$i+1] -ne $function:pe_NoSeparator)
+            {
+                Write-Host " " -NoNewLine
+            }
+            else
+            {
+                $i++
+            }
+        }
+    }
 }
 
 function global:prompt
@@ -27,6 +42,121 @@ $PromptEdModule.OnRemove = {
 }
    
 $script:prompts = @{}
+
+function Get-PromptElements
+{
+    . { 
+        for($i = 0; $i -lt $script:promptElements.Length; $i++)
+        {
+            [pscustomobject]@{Index = $i; PromptElement = $script:promptElements[$i]}
+        } 
+    } | Format-List
+}
+
+function script:GetRealIndex
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, Position=0)]
+        [int]$Index,
+        [Parameter(Mandatory=$true, Position=1)]
+        [int]$Length
+    )
+
+    if($Index -lt 0)
+    {
+        $Index = $Length + $Index
+    }
+
+    return $Index;
+}
+
+function script:ValidateIndex
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, Position=0)]
+        [int]$Index,
+        [Parameter(Mandatory=$true, Position=1)]
+        [int]$Length
+    )
+
+    if($Index -lt 0 -or $Index -gt $Length)
+    {
+        Write-Error "Invalid index.  Valid index values: -$Length to $Length."
+        return $false
+    }
+
+    return $true;
+}
+
+function Add-PromptElement
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Position=0, Mandatory=$true)]
+        [ScriptBlock]$PromptElement,
+        [Parameter(Position=1, Mandatory=$false)]
+        [int]$Index = $script:promptElements.Length
+    )
+
+    if(!$script:promptElements -or $Index -eq $script:promptElements.Length)
+    {
+        $script:promptElements += $PromptElement
+        return
+    }
+
+    $Index = script:GetRealIndex $Index $script:promptElements.Length
+
+    if(!(script:ValidateIndex $Index $script:promptElements.Length))
+    {
+        return
+    }
+
+    $newPromptElements = @()
+    for($i = 0; $i -lt $script:promptElements.Length; $i++)
+    {
+        if($i -eq $Index)
+        {
+            $newPromptElements += $PromptElement
+        }
+        $newPromptElements += $script:promptElements[$i]
+    }
+    $script:promptElements = $newPromptElements
+}
+
+function Remove-PromptElement
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Position=0, Mandatory=$true)]
+        [int]$Index
+    )
+
+    if(!$script:promptElements)
+    {
+        Write-Error "No prompt elements to remove."
+        return
+    }
+
+    $Index = script:GetRealIndex $Index $script:promptElements.Length
+
+    if(!(script:ValidateIndex $Index $script:promptElements.Length))
+    {
+        return
+    }
+
+    $newPromptElements = @()
+    for($i = 0; $i -lt $script:promptElements.Length; $i++)
+    {
+        if($i -eq $Index)
+        {
+            continue
+        }
+        $newPromptElements += $script:promptElements[$i]
+    }
+    $script:promptElements = $newPromptElements
+}
 
 function Set-Prompt
 {
@@ -51,64 +181,22 @@ function Set-Prompt
     [CmdletBinding(DefaultParameterSetName="BuiltIn")]
     param(
         [Parameter(Position=0, Mandatory=$true, ParameterSetName="BuiltIn")]
-        [string]$Name,
-        [Parameter(Position=0, Mandatory=$true, ParameterSetName="Custom")]
-        [System.Management.Automation.ScriptBlock]$ScriptBlock
+        [string]$Name
     )
 
-    switch ($PsCmdlet.ParameterSetName) 
+    $script:promptElements = @()
+    foreach($element in $script:prompts[$Name])
     {
-        "BuiltIn" { $script:currentPrompt = $script:prompts[$Name] }
-        "Custom"  { $script:currentPrompt = $ScriptBlock }
+        $script:promptElements += $element
     }
-}
-
-$script:promptChar = '$'
-
-function Set-PromptChar
-{
-    <#
-    .SYNOPSIS
-        Sets the "prompt character".
-    .DESCRIPTION
-        Sets the character between the path and cursor in common prompts.
-    .PARAMETER Char
-        The character to set as the prompt character.
-    .EXAMPLE
-        [jimmeh@jimmehsbox] C:\$ Set-PromptChar '>'
-        [jimmeh@jimmehsbox] C:\>
-    .LINK
-        https://github.com/jimmehc/PromptEd
-    #>
-    [CmdletBinding()]
-    param(
-        [Parameter(Position=0, Mandatory=$true)]
-        [char]$Char
-    )
-
-    $script:promptChar = $Char
-}
-
-function Get-PromptChar
-{
-    <#
-    .SYNOPSIS
-        Gets the "prompt character".
-    .DESCRIPTION
-        Gets the character between the path and cursor in common prompts.
-    .EXAMPLE
-        [jimmeh@jimmehsbox] C:\$ Get-PromptChar
-        $
-    .LINK
-        https://github.com/jimmehc/PromptEd
-    #>
-    $script:promptChar
 }
 
 $script:promptColors = 
     @{
         Path = $Host.UI.RawUI.ForegroundColor;
         Preamble = [ConsoleColor]::Magenta;
+        Time = [ConsoleColor]::Blue;
+        Brackets = [ConsoleColor]::Green;
      }
 
 function Set-PromptColor
@@ -204,16 +292,13 @@ function Add-BuiltInPrompt
     .SYNOPSIS
         Adds a built-in prompt.
     .DESCRIPTION
-        Adds a function or ScriptBlock to the built-in prompts list.
+        Adds a prompt to the built-in prompts list.
     .PARAMETER Name
         The name of the new built-in prompt.
     .PARAMETER Prompt
-        A ScriptBlock or function to add to the built-in prompts list.
+        An array of prompt elements (functions/ScriptBlocks) which construct the prompt.
     .EXAMPLE
-        [jimmeh@jimmehsbox] C:\$ Add-BuiltInPrompt HelloWorld { Write-Host -ForeGroundColor (Get-PromptColor Preamble) "HelloWorld $(Get-PromptChar)" -NoNewLine }
     .EXAMPLE
-        [jimmeh@jimmehsbox] C:\$ function HelloWorldPrompt { Write-Host -ForeGroundColor (Get-PromptColor Preamble) "HelloWorld $(Get-PromptChar)" -NoNewLine }
-        [jimmeh@jimmehsbox] C:\$ AddBuiltInPrompt HelloWorld $function:HelloWorldPrompt
     .LINK
         https://github.com/jimmehc/PromptEd
     #>
@@ -222,7 +307,7 @@ function Add-BuiltInPrompt
         [Parameter(Position=0, Mandatory=$true)]
         [string]$Name,
         [Parameter(Position=1, Mandatory=$true)]
-        [ScriptBlock]$Prompt
+        [ScriptBlock[]]$PromptElements
     )
 
     if($script:prompts.ContainsKey($Name))
@@ -231,7 +316,7 @@ function Add-BuiltInPrompt
         return
     }
 
-    $script:prompts[$Name] = $Prompt
+    $script:prompts[$Name] = $PromptElements
 }
 
 function Remove-BuiltInPrompt
@@ -244,7 +329,7 @@ function Remove-BuiltInPrompt
     .PARAMETER Name
         The name of the built-in prompt to remove.
     .EXAMPLE
-        [jimmeh@jimmehsbox] C:\$ Remove-Prompt UNAtCN
+        [jimmeh@jimmehsbox] C:\$ Remove-BuiltInPrompt Simple
     .LINK
         https://github.com/jimmehc/PromptEd
     #>

@@ -1,19 +1,85 @@
 function script:Get-CurrentLocation
 {
-    "$($executionContext.SessionState.Path.CurrentLocation)$($script:promptChar * ($nestedPromptLevel + 1))".Replace("Microsoft.PowerShell.Core\FileSystem::", "")
+    "$($executionContext.SessionState.Path.CurrentLocation)"
 }
 
-Add-BuiltInPrompt UNAtCNBrackets { 
-    Write-Host -ForeGroundColor $script:promptColors["Preamble"] "[$($env:USERNAME)@$($env:COMPUTERNAME)]".ToLower() -nonewline; 
-    Write-Host -ForeGroundColor $script:promptColors["Path"] " $(script:Get-CurrentLocation)" -NoNewLine
+function script:Get-DefaultPathOutput
+{
+    "$(Get-CurrentLocation)".Replace("Microsoft.PowerShell.Core\FileSystem::", "").Replace($env:USERPROFILE,"~")
 }
 
-Add-BuiltInPrompt UNAtCN { 
-    Write-Host -ForeGroundColor $script:promptColors["Preamble"] "$($env:USERNAME)@$($env:COMPUTERNAME):".ToLower() -nonewline; 
-    Write-Host -ForeGroundColor $script:promptColors["Path"] " $(script:Get-CurrentLocation)" -NoNewLine
+function pe_UNAtCN { 
+    Write-Host -ForeGroundColor $script:promptColors["Preamble"] "$($env:USERNAME)@$($env:COMPUTERNAME)".ToLower() -NoNewLine; 
 }
 
-Add-BuiltInPrompt JustPath {
-    Write-Host -ForeGroundColor $script:promptColors["Path"] (script:Get-CurrentLocation) -NoNewLine
+function pe_UNAtCNBrackets { 
+    Write-Host -ForeGroundColor $script:promptColors["Brackets"] "[" -NoNewLine
+    pe_UNAtCN
+    Write-Host -ForeGroundColor $script:promptColors["Brackets"] "]" -NoNewLine
 }
+
+function pe_FullPath {
+    Write-Host -ForeGroundColor $script:promptColors["Path"] (script:Get-DefaultPathOutput) -NoNewLine
+}
+
+function pe_UNCNWithPath{
+    pe_UNAtCN
+    pe_FullPath
+}
+
+function pe_UNCNWithPathAndBrackets{
+    Write-Host -ForeGroundColor $script:promptColors["Preamble"] "[" -NoNewLine
+    pe_UNAtCN
+    Write-Host -ForeGroundColor $script:promptColors["Preamble"] ":" -NoNewLine
+    pe_FullPath
+    Write-Host -ForeGroundColor $script:promptColors["Path"] "]" -NoNewLine
+}
+
+function pe_NewLine {
+    Write-Host ""
+}
+
+function pe_DollarSign {
+    Write-Host "$" -NoNewLine
+}
+
+function pe_GreaterThan{
+    Write-Host ">" -NoNewLine
+}
+
+function pe_BracketedTime{
+    Write-Host -ForeGroundColor $script:promptColors["Time"] -NoNewLine "[$(Get-Date -Format "ddd MMM dd HH:mm:ss")]"
+}
+
+function pe_PoshGitStatus{
+    if(Get-Module posh-git)
+    {
+        Write-VcsStatus
+    }
+}
+
+function pe_NoSeparator { <# No Separator #> }
+
+Add-BuiltInPrompt JustPath @(
+    $function:pe_FullPath,
+    $function:pe_NoSeparator,
+    $function:pe_GreaterThan
+)
+
+Add-BuiltInPrompt Simple @(
+    $function:pe_UNAtCNBrackets,
+    $function:pe_FullPath,
+    $function:pe_NoSeparator,
+    $function:pe_DollarSign
+)
+
+Add-BuiltInPrompt Timestamped @(
+    $function:pe_BracketedTime,
+    $function:pe_UNCNWithPathAndBrackets,
+    $function:pe_NoSeparator,
+    $function:pe_PoshGitStatus,
+    $function:pe_NewLine,
+    $function:pe_NoSeparator,
+    $function:pe_DollarSign
+)
 

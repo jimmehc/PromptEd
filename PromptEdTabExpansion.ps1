@@ -12,7 +12,7 @@ function BuiltInPromptCompletion
 
 if(Get-Module TabExpansion++)
 {
-    Register-ArgumentCompleter -CommandName "Set-Prompt","Remove-Prompt" -ParameterName "BuiltIn" -ScriptBlock $function:BuiltInPromptCompletion
+    Register-ArgumentCompleter -CommandName "Set-Prompt","Remove-Prompt" -ParameterName "Name" -ScriptBlock $function:BuiltInPromptCompletion
 
     return
 }
