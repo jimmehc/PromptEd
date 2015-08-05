@@ -1,4 +1,4 @@
-# Define some colors for use in prompts
+﻿# Define some colors for use in prompts
 Add-PromptColor Path $Host.UI.RawUI.ForegroundColor
 Add-PromptColor Preamble Magenta
 Add-PromptColor Time Blue
@@ -51,6 +51,10 @@ function pe_DollarSign {
     Write-Host "$" -NoNewLine
 }
 
+function pe_Lamda {
+    Write-Host "λ" -NoNewLine
+}
+
 function pe_GreaterThan{
     Write-Host ">" -NoNewLine
 }
@@ -82,6 +86,11 @@ Add-BuiltInPrompt Simple @(
     $function:pe_DollarSign
 )
 
+Add-BuiltInPrompt SimpleLamda @(
+    $function:pe_UNCNWithPathAndBrackets,
+    $function:pe_Lamda
+)
+
 Add-BuiltInPrompt Timestamped @(
     $function:pe_BracketedTime,
     $function:pe_UNCNWithPathAndBrackets,
@@ -89,6 +98,6 @@ Add-BuiltInPrompt Timestamped @(
     $function:pe_PoshGitStatus,
     $function:pe_NewLine,
     $function:pe_NoSeparator,
-    $function:pe_DollarSign
+    $function:pe_Lamda
 )
 
