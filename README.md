@@ -5,10 +5,13 @@ PromptEd simplifies the process of prompt customization, offering a handful of b
 
 # Quick Start
 Grab the necessary files by cloning this repo:
-    git clone https://github.com/jimmehc/PromptEd.git
+```
+git clone https://github.com/jimmehc/PromptEd.git
+```
 
 And import the PromptEd module:
-    Import-Module PromptEd\PromptEd.psm1
-
-Use the Get-BuiltinPromptNames cmdlet to see what builtin prompts are currently available.  Use Set-Prompt to change your prompt and see what these look like.  If you find one you like, import PromptEd in your profile, and add "Set-Prompt <Name>" below that.  If you'd like to further customize your prompt and learn more about what this module can do, read on!
+```
+Import-Module PromptEd\PromptEd.psm1
+```
+Use the `Get-BuiltinPromptNames` cmdlet to see what builtin prompts are currently available.  Use `Set-Prompt` to change your prompt and see what these look like.  If you find one you like, import PromptEd in your $profile, and add `Set-Prompt <Name>` below that.  If you'd like to further customize your prompt and learn more about what this module can do, read on!
 
