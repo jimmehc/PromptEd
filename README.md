@@ -1,7 +1,7 @@
 # PromptEd
 Whether functional or purely pretty, a custom prompt is essential for any command line enthusiast.
 
-PromptEd simplifies the process of prompt customization, offering a handful of builtin prompts, providing a straighforward means of creating new prompts, and making it easy to dynamically modify and switch between different prompts.  It also offers the ability to add "prompt tasks" - code which executes on every prompt drawing, unrelated to drawing the prompt UI itself.
+PromptEd simplifies the process of prompt customization for PowerShell, offering a handful of builtin prompts, providing a straighforward means of creating new prompts, and making it easy to dynamically modify and switch between different prompts.  It also offers the ability to add "prompt tasks" - code which executes on every prompt drawing, unrelated to drawing the prompt UI itself.
 
 # Quick Start
 Grab the necessary files by cloning this repo:
