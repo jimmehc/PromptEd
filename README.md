@@ -20,6 +20,7 @@ A PromptEd prompt consists of a list of "prompt elements", which are simply Scri
 
 (\* Functions in PowerShell are just ScriptBlocks stored in the "function:" directory, which are easily callable from the shell.)
 
+## Adding/Removing Prompt Elements
 Set your prompt to a builtin, as is described above, and run `Get-PromptElements` to see the prompt elements of the current prompt.  A list of indices of the prompt elements' positions and their contents is displayed.
 
 To remove a prompt element, simply run `Remove-PromptElement` with the index of the element you wish to remove.
@@ -27,7 +28,7 @@ To remove a prompt element, simply run `Remove-PromptElement` with the index of 
 To add a prompt element, run `Add-PromptElement` with an index and a prompt element ScriptBlock. A number of prompt elements are already defined by the module as functions, using the "pe\_" prefix as the convention for distinguishing them.  You can view them with a simple regex search:
 
 ```
-dir function: | ?{ $\_.Name -match "^pe\_" }
+dir function: | ?{ $_.Name -match "^pe_" }
 ```
 
 If no index is specified, the element is added to the end.  If one is specified, the element is inserted before the element currently at that index.  For example, to insert the "pe\_BracketedTime" element at the start of your prompt (position 0):
@@ -36,7 +37,8 @@ If no index is specified, the element is added to the end.  If one is specified,
 Add-PromptElement $function:pe_BracketedTime 0
 ```
 
-If you peek at the definitions of the builtin prompt elements, you'll see that they use `Write-Host` calls with `-ForeGroundColor` set to a "prompt colour".  Using the name of that color, you can use the `Set-PromptColor` cmdlet to dynamically change the color of the applicable part of that element.  e.g. This will change the whole pe\_BracketedTime to green:
+## Prompt Colours
+If you peek at the definitions of the builtin prompt elements, you'll see that they use `Write-Host` calls with `-ForeGroundColor` set to a "prompt colour".  Using the name of that colour, you can use the `Set-PromptColor` cmdlet to dynamically change the colour of the applicable part of that element.  e.g. This will change the whole pe\_BracketedTime to green:
 ```
 Set-PromptColor Time Green
 ```
