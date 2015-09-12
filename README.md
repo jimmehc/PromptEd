@@ -16,7 +16,7 @@ Import-Module PromptEd\PromptEd.psm1
 Use the `Get-BuiltinPromptNames` cmdlet to see what builtin prompts are currently available.  Use `Set-Prompt` to change your prompt and see what these look like.  If you find one you like, import PromptEd in your `$profile`, and add `Set-Prompt <Name>` below that.  To get your old prompt back, just unload the module.  If you'd like to further customize your prompt and learn more about what this module can do, read on!
 
 # Customizing your Prompt
-A PromptEd prompt consists of a list of "prompt elements", which are simply ScriptBlocks (or functions\*) which should output nothing to the pipeline, and use `Write-Host` to write to the screen, usually using `-NoNewLine`, and setting a foreground colour to a configured "prompt colour" (more on that later) with `-ForegroundColor`.
+A PromptEd prompt consists of a list of "prompt elements", which are simply ScriptBlocks (or functions\*) which should output nothing to the pipeline, and use `Write-Host` to write to the screen, usually using `-NoNewLine`, and setting a foreground colour to a configured "prompt colour" (more on that later) with `-ForegroundColor`.  They can be anything from printing "username@computername", the current path, current directory, the time etc.
 
 (\* Functions in PowerShell are just ScriptBlocks stored in the "function:" directory, which are easily callable from the shell.)
 
@@ -44,3 +44,34 @@ Set-PromptColor Time Green
 ```
 
 You can define new colours for use in custom prompts with the `Add-PromptColor` cmdlet, and retrieve them with `Get-PromptColor`.
+
+## Custom Prompt Elements
+You needn't just use the few prompt elements which come with PromptEd, you can create custom ones too.
+
+Firstly, decide upon, or create a new, prompt colour for your element.  You should try to reuse the relevant colour if writing a variant on an element which already exists (i.e. elements displaying the path should use the "Path" color, or the "Time" color for the time.
+```
+Add-PromptColor HelloWorld Red
+```
+
+Now, you can just add a ScriptBlock to your prompt inline, like this:
+```
+Add-PromptElement { Write-Host "[HelloWorld]" -ForegroundColor (Get-PromptColor HelloWorld) -NoNewLine }
+```
+
+However, I recommend creating a "pe\_\*", function and using that:
+```
+function pe_HelloWorld { Write-Host "[HelloWorld]" -ForegroundColor (Get-PromptColor HelloWorld) -NoNewLine }
+Add-PromptElement $function:pe_HelloWorld
+```
+
+## Adding a Builtin Prompt
+Once you've decided upon what you'd like your prompt to look like, and created the necessary prompt colours and elements, you can then register it as a builtin prompt, and switch to it with `Set-Prompt`.  The `Add-BuiltinPrompt` cmdlet takes a name, and an ordered array of elements like this:
+```
+Add-BuiltinPrompt HelloWorldPrompt @($function:pe_HelloWorld, $function:pe_FullPath, $function:pe_NoSeparator, $function:pe_GreaterThan)
+```
+
+### pe\_NoSeparator
+Prompt elements are usually separated with a space.  pe\_NoSeparator is a special prompt element which writes nothing, but which instructs PromptEd not to insert this space between elements.  
+
+# Prompt Tasks
+TODO
