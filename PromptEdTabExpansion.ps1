@@ -1,6 +1,5 @@
 function BuiltInPromptCompletion
 {
-    [ArgumentCompleter(Parameter="Name", Command="Set-Prompt")]
     param($commandName,
             $parameterName,
             $wordToComplete,
