@@ -86,3 +86,5 @@ Add-PromptTask WindowTitlePath {
 ![](http://i.imgur.com/9B8isIs.png)
 
 TODO
+
+# For Module Writers
