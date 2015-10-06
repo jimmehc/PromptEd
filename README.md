@@ -83,6 +83,6 @@ Add-PromptTask WindowTitlePath {
 
 ![](http://i.imgur.com/fvsYTTl.png)
 
-![](http://i.imgur.com/djMXFwS.png)
+![](http://i.imgur.com/9B8isIs.png)
 
 TODO
