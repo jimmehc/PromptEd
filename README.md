@@ -74,5 +74,13 @@ Add-BuiltinPrompt HelloWorldPrompt @($function:pe_HelloWorld, $function:pe_FullP
 Prompt elements are usually separated with a space.  pe\_NoSeparator is a special prompt element which writes nothing, but which instructs PromptEd not to insert this space between elements.  
 
 # Prompt Tasks
+
+```
+Add-PromptTask WindowTitlePath {           
+    $host.UI.RawUI.WindowTitle = $pwd.Path 
+}                                          
+```
+
 ![](http://i.imgur.com/fvsYTTl.png)
+
 TODO
