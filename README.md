@@ -74,17 +74,29 @@ Add-BuiltinPrompt HelloWorldPrompt @($function:pe_HelloWorld, $function:pe_FullP
 Prompt elements are usually separated with a space.  pe\_NoSeparator is a special prompt element which writes nothing, but which instructs PromptEd not to insert this space between elements.  
 
 # Prompt Tasks
+As one's PowerShell prompt is defined via a function, it is possible to add other code to it, which is unrelated to the actual prompt writing.  Prompt Tasks are PromptEd's means of letting you do this, independent of whatever prompt is being drawn.
 
+A Prompt Tasks are simply functions which execute prior to prompt writing. `Add-PromptTask` can be used to add one, and they are executed in the order in which they are added.  Prompt Tasks have names, and can be removed by passing that name to `Remove-PromptTask`.
+
+A simple example would be a task which updates the console's window title with the current path:
 ```
 Add-PromptTask WindowTitlePath {           
     $host.UI.RawUI.WindowTitle = $pwd.Path 
 }                                          
 ```
 
+Prompt Tasks can also be used to modify the current prompt elements.  A common inclusion in prompts is code to change a prompt's colour to red on a non-zero exit code.  The following is a simple example of how this could be done with a Prompt Task.  Notice how the prompt can be changed without affecting how the task works:
+
 ![](http://i.imgur.com/fvsYTTl.png)
+
+Another example might be to add a prompt element indicating the number of passed and failed tests, when one cds to a directory in which tests are run from (in this instance "RunTests" populates environment variables with the number of passed and failed tests):
 
 ![](http://i.imgur.com/9B8isIs.png)
 
-TODO
-
 # For Module Writers
+Adding information to users' prompts is often useful in modules.  Unfortunately, this is usually done by trashing a user's current prompt, requiring that user to perform manual edits to retain both the module's additions and their own customizations.  
+
+By using PromptEd, a module could simply add a new prompt element to users' prompts on load.  Making dynamic modifications in response to how the module is used is also made much simpler.
+
+# Contributing
+Contributions are very welcome.  A really simple way to contribute is to simply add more builtin prompts and/or utility functions to BuiltInPrompts.ps1, as there are not many right now.  Deeper design modifications and ideas are also very welcome, as there are definitely many areas for improvement.
