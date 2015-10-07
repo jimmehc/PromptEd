@@ -15,6 +15,10 @@ Import-Module PromptEd\PromptEd.psm1
 ```
 Use the `Get-BuiltinPromptNames` cmdlet to see what builtin prompts are currently available.  Use `Set-Prompt` to change your prompt and see what these look like.  If you find one you like, import PromptEd in your `$profile`, and add `Set-Prompt <Name>` below that.  To get your old prompt back, just unload the module.  If you'd like to further customize your prompt and learn more about what this module can do, read on!
 
+## Tab Completion via TabExpansion++
+
+Tab completion of builtin prompt names is provided via the [TabExpansion++](https://github.com/lzybkr/TabExpansionPlusPlus) module.  Import this prior to importing PromptEd to enable this.  I intend to add more completions in the future.
+
 # Customizing your Prompt
 A PromptEd prompt consists of a list of "prompt elements", which are simply ScriptBlocks (or functions\*) which should output nothing to the pipeline, and use `Write-Host` to write to the screen, usually using `-NoNewLine`, and setting a foreground colour to a configured "prompt colour" (more on that later) with `-ForegroundColor`.  They can be anything from printing "username@computername", the current path, current directory, the time etc.
 
