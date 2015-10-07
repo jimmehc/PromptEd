@@ -85,7 +85,7 @@ Add-PromptTask WindowTitlePath {
 }                                          
 ```
 
-Prompt Tasks can also be used to modify the current prompt elements.  A common inclusion in prompts is code to change a prompt's colour to red on a non-zero exit code.  The following is a simple example of how this could be done with a Prompt Task.  Notice how the prompt can be changed without affecting how the task works:
+Prompt Tasks can also be used to modify the current prompt elements.  A common inclusion in prompts is code to change a prompt's colour to red on a non-zero exit code.  The following is a simple example of how this could be done with a Prompt Task (pinging a non-existent host returns a non-zero code, whereas a successful one returns 0).  Notice how the prompt can be changed without affecting how the task works:
 
 ![](http://i.imgur.com/fvsYTTl.png)
 
