@@ -223,9 +223,10 @@ function Set-PromptColor
 {
     <#
     .SYNOPSIS
-        Sets a color for use in prompts.
+        Sets a color for use in prompts. 
     .DESCRIPTION
-        Sets a color, associated with a specific name, which is used in available prompts.
+        Sets a color, associated with a specific name, which is used in available prompts. 
+        If a color associated with the provided name does not exist, a new one is created. 
     .PARAMETER Name
         The name associated with the color being set.
     .EXAMPLE
@@ -239,7 +240,6 @@ function Set-PromptColor
     [CmdletBinding()]
     param(
         [Parameter(Position=0, Mandatory=$true)]
-        [ValidateScript({$script:promptColors.ContainsKey($_)})]
         [string]$Name,
         [Parameter(Position=1, Mandatory=$true)]
         [ConsoleColor]$Color
@@ -248,34 +248,7 @@ function Set-PromptColor
     $script:promptColors[$Name] = $Color
 }
 
-function Add-PromptColor
-{
-    <#
-    .SYNOPSIS
-        Adds a color for use in prompts.
-    .DESCRIPTION
-        Adds a color, associated with a specific name, which is used in available prompts.
-    .PARAMETER Name
-        The name associated with the color being added.
-    .LINK
-        https://github.com/jimmehc/PromptEd
-    #>
-    [CmdletBinding()]
-    param(
-        [Parameter(Position=0, Mandatory=$true)]
-        [string]$Name,
-        [Parameter(Position=1, Mandatory=$true)]
-        [ConsoleColor]$Color
-    )
-
-    if($script:promptColors.ContainsKey($Name))
-    {
-        Write-Error "The prompt color with name, $Name, already exists.  Use Set-PromptColor to set it to a new value."
-        return
-    }
-
-    $script:promptColors[$Name] = $Color
-}
+Set-Alias Add-PromptColor Set-PromptColor
 
 function Get-PromptColor
 {
